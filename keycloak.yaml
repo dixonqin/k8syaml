@@ -1,0 +1,60 @@
+postgresql:
+  # Disable PostgreSQL dependency
+  enabled: false
+
+replicas: 1
+
+startupScripts:
+  # cli script that reconfigures WildFly
+  contextPath.cli: |
+    embed-server --server-config=standalone-ha.xml --std-out=echo
+    batch
+    /subsystem=infinispan/cache-container=keycloak/distributed-cache=sessions:write-attribute(name=owners, value=${env.CACHE_OWNERS:2})
+    /subsystem=infinispan/cache-container=keycloak/distributed-cache=authenticationSessions:write-attribute(name=owners, value=${env.CACHE_OWNERS:2})
+    /subsystem=infinispan/cache-container=keycloak/distributed-cache=offlineSessions:write-attribute(name=owners, value=${env.CACHE_OWNERS:2})
+    /subsystem=infinispan/cache-container=keycloak/distributed-cache=loginFailures:write-attribute(name=owners, value=${env.CACHE_OWNERS:2})
+
+    echo Configuring node identifier
+
+    ## Sets the node identifier to the node name (= pod name). Node identifiers have to be unique. They can have a
+    ## maximum length of 23 characters. Thus, the chart's fullname template truncates its length accordingly.
+    /subsystem=transactions:write-attribute(name=node-identifier, value=${jboss.node.name})
+
+    echo Finished configuring node identifier
+    run-batch
+
+    stop-embedded-server
+
+service:
+  type: NodePort
+
+ingress:
+  enabled: true
+
+
+
+extraEnv: |
+  - name: JGROUPS_DISCOVERY_PROTOCOL
+    value: dns.DNS_PING
+  - name: JGROUPS_DISCOVERY_PROPERTIES
+    value: 'dns_query={{ include "keycloak.serviceDnsName" . }}'
+  - name: CACHE_OWNERS
+    value: "3"
+  - name: CACHE_OWNERS_AUTH_SESSIONS
+    value: "3"
+  - name: KEYCLOAK_USER
+    value: admin
+  - name: KEYCLOAK_PASSWORD
+    value: admin
+  - name: DB_VENDOR
+    value: postgres
+  - name: DB_ADDR
+    value: xxx.xxx.xxx.xxx
+  - name: DB_PORT
+    value: "5432"
+  - name: DB_DATABASE
+    value: keycloak
+  - name: DB_USER
+    value: username
+  - name: DB_PASSWORD
+    value: password

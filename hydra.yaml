@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: hydra
+  name: hydra
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: hydra
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: hydra
+    spec:
+      containers:
+      - image: oryd/hydra:v1.10.3
+        imagePullPolicy: Always
+        name: hydra
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        env:
+        - name: SYSTEM_SECRET
+          value: hdwqKQXl9ODbwKxir23smzWEt3vLSHpF
+        - name: DATABASE_URL
+          value: http://localhost:3306
+        - name: OAUTH2_ISSUER_URL
+          value: http://localhost:4444
+        - name: OAUTH2_LOGIN_URL
+          value: http://localhost:4444/login
+        - name: OAUTH2_CONSENT_URL
+          value: http://localhost:4444/consent
+        ports:
+          - name: service
+            containerPort: 14444
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

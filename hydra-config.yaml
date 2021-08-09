@@ -1,0 +1,99 @@
+hydra:
+  config:
+    serve:
+      admin:
+        host: localhost
+        cors:
+          allowed_origins:
+            - '*'
+          allowed_methed:
+            - POST
+          allowed_headers:
+            - 'Content-Type'
+          exposed_headers:
+            - 'Content-Type'
+          debug: false
+          allow_credentials: true
+          enabled: false
+      public:
+        host: localhost
+        cors:
+          allowed_origins:
+            - '*'
+          allowed_methed:
+            - POST
+          allowed_headers:
+            - 'Content-Type'
+          exposed_headers:
+            - 'Content-Type'
+          debug: false
+          allow_credentials: true
+          enabled: false
+      tls:
+        cert:
+          path: /path/to/file.pem
+        key:
+          path: /path/to/file.pem
+    ttl:
+      access_token: 24h
+      refresh_token: 1440h
+      id_token: 24h
+      auth_code: 24h
+    strategies:
+      access_token: opaque
+      scope: exact
+    urls:
+      login: https://my-login.app/login
+      consent: https://my-consent.app/consent
+      logout: https://my-logout.app/logout
+      error: https://my-error.app/error
+      post_logout_redirect: https://my-example.app/logout-successful
+      self:
+        public: https://localhost:4444/
+        issuer: https://localhost:4444/
+    log:
+      format: json
+      level: panic  # - panic  # - fatal  # - error  # - warn  # - info  # - debug  # - trace
+    secrets:
+      cookie:
+        - this-is-the-primary-secret
+        - this-is-an-old-secret
+        - this-is-another-old-secret
+      system:
+        - this-is-the-primary-secret
+        - this-is-an-old-secret
+        - this-is-another-old-secret
+    oauth2:
+      session:
+        encrypt_at_rest: false #If set to true (default) ORY Hydra encrypt OAuth2 and OpenID Connect session data using AES-GCM and the system secret before persisting it in the database.
+      exclude_not_before_claim: true
+      hashers:
+        bcrypt:
+          cost: 4 # 4-31
+    oidc:
+      dynamic_client_registration:
+        default_scope:
+          - openid
+          - offline
+          - offline_access
+      subject_identifiers:
+        supported_types:
+          - public
+          - pairwise
+        pairwise:
+          salt: some-random-salt
+    webfinger:
+      oidc_discovery:
+        token_url: https://my-service.com/oauth2/token
+        auth_url: https://my-service.com/oauth2/auth
+        client_registration_url: https://my-service.com/clients
+        supported_claims:
+          - email
+          - username
+        supported_scope:
+          - email
+          - whatever
+          - read.photos
+        userinfo_url: https://example.org/my-custom-userinfo-endpoint
+        jwks_url: https://my-service.com/.well-known/jwks.json
+    dsn: ''

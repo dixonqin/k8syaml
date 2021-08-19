@@ -40,6 +40,18 @@ spec:
           value: "mima123456"
         - name: PROXY_ADDRESS_FORWARDING
           value: "true"
+        - name: DB_VENDOR
+          value: mysql
+        - name: DB_ADDR
+          value: "172.27.244.246"
+        - name: DB_PORT
+          value: "31111"
+        - name: DB_DATABASE
+          value: keycloak
+        - name: DB_USER
+          value: "root"
+        - name: DB_PASSWORD
+          value: "745417"
         ports:
         - name: http
           containerPort: 8080
